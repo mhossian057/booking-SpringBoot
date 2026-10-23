@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: booking
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booking
+    username: booking
+    password: booking
+  jpa:
+    hibernate:
+      ddl-auto: validate      # Flyway owns the schema, Hibernate only checks it
+    open-in-view: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
