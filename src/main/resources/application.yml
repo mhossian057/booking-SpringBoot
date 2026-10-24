@@ -7,13 +7,18 @@ spring:
     password: booking
   jpa:
     hibernate:
-      ddl-auto: validate      # Flyway owns the schema, Hibernate only checks it
+      ddl-auto: validate
     open-in-view: false
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
+
+server:
+  port: 8081
+  error:
+    include-message: always
 
 management:
   endpoints:
@@ -23,3 +28,11 @@ management:
   endpoint:
     health:
       show-details: always
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-at-least-32-bytes-long}
+    ttl-minutes: 60
+  admin:
+    email: admin@booking.local
+    password: ${ADMIN_PASSWORD:Admin12345}
