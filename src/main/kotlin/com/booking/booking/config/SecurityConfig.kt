@@ -22,6 +22,7 @@ class SecurityConfig {
             .authorizeHttpRequests {
                 // Rules are checked top to bottom; the first match wins
                 it.requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                    .requestMatchers("/error").permitAll()
                     .requestMatchers("/actuator/**").hasRole("ADMIN")   // metrics etc. for admins only
                     .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN")
