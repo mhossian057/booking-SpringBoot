@@ -14,11 +14,11 @@ spring:
     port: 5672
     username: guest
     password: guest
-
+  web:
+    error:
+      include-message: always
 server:
   port: 8081
-  error:
-    include-message: always
 
 management:
   endpoints:

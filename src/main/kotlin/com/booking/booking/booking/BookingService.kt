@@ -1,12 +1,14 @@
 package com.booking.booking.booking
 
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
+import java.util.UUID
 
 data class CreatedSlotRequest(val startsAt: Instant, val endsAt: Instant)
 data class BookingRequest(val slotId: Long)
@@ -19,7 +21,11 @@ data class BookingView(
 fun Booking.toView() = BookingView(id!!, slotId, userId, status, createdAt)
 
 @Service
-class BookingService(private val slots: SlotRepository, private val bookings: BookingRepository) {
+class BookingService(
+    private val slots: SlotRepository,
+    private val bookings: BookingRepository,
+    private val events: ApplicationEventPublisher
+) {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -32,10 +38,10 @@ class BookingService(private val slots: SlotRepository, private val bookings: Bo
             val slot = slots.saveAndFlush(Slot(startsAt = req.startsAt, endsAt = req.endsAt))
             return SlotView(slot.id!!, slot.startsAt, slot.endsAt, booked = false)
         } catch (e: DataIntegrityViolationException) {
-            if (e.violates("uq_slots_start")) {
+            if (e.violates("uq_slot_start")) {
                 throw ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    $$"A slot already starts at ${req.startsAt}"
+                    "A slot already starts at ${req.startsAt}"
                 )
             }
             throw e
@@ -57,6 +63,17 @@ class BookingService(private val slots: SlotRepository, private val bookings: Bo
         try {
             val booking = bookings.saveAndFlush(Booking(slotId = slotId, userId = userId))
             log.info("Booking {} created: slot={} user={}", booking.id, slotId, userId)
+
+            events.publishEvent(
+                BookingCreatedEvent(
+                    eventId = UUID.randomUUID().toString(),
+                    bookingId = booking.id!!.toString(),
+                    slotId = slotId.toString(),
+                    userId = userId.toString(),
+                    occurredAt = booking.createdAt,
+                )
+            )
+
             return booking.toView()
         } catch (e: DataIntegrityViolationException) {
             if (e.violates("uq_booking_slots")) {
