@@ -4,9 +4,9 @@ import java.time.Instant
 
 data class BookingCreatedEvent(
     val eventId: String,
-    val bookingId: String,
-    val slotId: String,
-    val userId: String,
+    val bookingId: Long,
+    val slotId: Long,
+    val userId: Long,
     val occurredAt: Instant,
     val type: String = "BookingCreated",
 )

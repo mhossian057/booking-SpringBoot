@@ -67,9 +67,9 @@ class BookingService(
             events.publishEvent(
                 BookingCreatedEvent(
                     eventId = UUID.randomUUID().toString(),
-                    bookingId = booking.id!!.toString(),
-                    slotId = slotId.toString(),
-                    userId = userId.toString(),
+                    bookingId = booking.id!!,
+                    slotId = slotId,
+                    userId = userId,
                     occurredAt = booking.createdAt,
                 )
             )
